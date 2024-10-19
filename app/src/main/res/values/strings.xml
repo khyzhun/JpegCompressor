@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">JpegCompressor</string>
+    <string name="compressed_image_size_bytes">Compressed image size: %1$d bytes</string>
+    <string name="original_image_size_bytes">Original image size: %1$d bytes</string>
+    <string name="selected_image_preview">selected image preview</string>
+    <string name="choose_photo">Choose photo</string>
+    <string name="next">Next</string>
+</resources>
