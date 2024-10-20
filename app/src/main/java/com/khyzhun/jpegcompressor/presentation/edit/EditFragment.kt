@@ -40,9 +40,10 @@ class EditFragment : BaseFragment(R.layout.fragment_edit), SeekBarListener {
     }
 
     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-        tempBitmap?.let { currentBitmap ->
-            val compressed = compressBitmapByLevel(currentBitmap, progress)
-            viewModel.saveCompressedImage(compressed)
+        launch {
+            compressBitmapByLevel(tempBitmap, progress)?.let {
+                viewModel.saveCompressedImage(it)
+            }
         }
     }
 

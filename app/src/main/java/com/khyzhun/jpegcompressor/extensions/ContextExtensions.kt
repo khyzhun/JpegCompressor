@@ -16,7 +16,8 @@ import java.io.ByteArrayOutputStream
  * @see ByteArrayOutputStream
  * @see Uri
  */
-fun Context.saveBitmapToByteArray(uri: Uri, quality: Int): ByteArray? {
+fun Context.saveBitmapToByteArray(uri: Uri?, quality: Int): ByteArray? {
+    uri ?: return null
     val originalBitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(uri))
     if (originalBitmap != null) {
         val outputStream = ByteArrayOutputStream()

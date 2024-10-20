@@ -24,9 +24,10 @@ class ChooseFragment : BaseFragment(R.layout.fragment_choose) {
     private val glide: RequestManager by inject()
 
     private val pickMedia = registerForActivityResult(PickVisualMedia()) { uri ->
-        uri?.let {
-            val byteArray = context?.saveBitmapToByteArray(it, COMPRESSION_QUALITY_100)
-            viewModel.saveSelectedImage(byteArray)
+        launch {
+            context?.saveBitmapToByteArray(uri, COMPRESSION_QUALITY_100)?.let {
+                viewModel.saveSelectedImage(it)
+            }
         }
     }
 

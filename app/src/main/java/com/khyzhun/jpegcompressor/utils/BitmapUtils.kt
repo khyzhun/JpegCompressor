@@ -16,7 +16,8 @@ const val COMPRESSION_QUALITY_100 = 100
  * @return The compressed image as a byte array.
  * @see Bitmap
  */
-fun compressBitmapByLevel(originalImage: Bitmap, progress: Int): ByteArray {
+fun compressBitmapByLevel(originalImage: Bitmap?, progress: Int): ByteArray? {
+    originalImage ?: return null
     val quality = 100 - progress
     val outputStream = ByteArrayOutputStream()
     originalImage.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
