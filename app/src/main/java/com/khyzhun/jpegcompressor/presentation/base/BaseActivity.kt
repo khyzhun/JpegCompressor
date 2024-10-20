@@ -18,7 +18,9 @@ abstract class BaseActivity(private val layoutResId: Int) : AppCompatActivity() 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(layoutResId)
-        replaceFragment(initiateFragment)
+        if (savedInstanceState == null) {
+            replaceFragment(initiateFragment)
+        }
         onBackPressedDispatcher.addCallback(enabled = false) { /* no-op */ }
     }
 
