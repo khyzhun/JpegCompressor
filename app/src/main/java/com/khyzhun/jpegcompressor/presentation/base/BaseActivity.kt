@@ -1,36 +1,79 @@
 package com.khyzhun.jpegcompressor.presentation.base
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.addCallback
+import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import com.khyzhun.jpegcompressor.R
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.lifecycleScope
+import androidx.viewbinding.ViewBinding
+import kotlinx.coroutines.launch
 
-abstract class BaseActivity(private val layoutResId: Int) : AppCompatActivity() {
+abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
     /**
-     * The fragment that will be initiated when the activity is created. This should be the
-     * starting point of the application. This is an abstract property that must be overridden
-     * by the subclass.
+     * ViewBinding instance. Use for access to views.
+     * [ViewBinding] is a feature that allows you to more easily write code that interacts with views.
      */
-    abstract val initiateFragment: Fragment
+    protected lateinit var binding: VB
+
+    /**
+     * Inflate view binding.
+     * @param inflater - layout inflater
+     * @return inflated view binding
+     */
+    abstract fun inflateBinding(inflater: LayoutInflater): VB
+
+    /**
+     * Initiate view.
+     * Use for setup views and listeners.
+     */
+    abstract fun initiateView()
+
+    /**
+     * Subscribe for live data.
+     * Use for observe live data.
+     */
+    abstract fun subscribeForLiveData()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(layoutResId)
-        if (savedInstanceState == null) {
-            replaceFragment(initiateFragment)
-        }
-        onBackPressedDispatcher.addCallback(enabled = false) { /* no-op */ }
+        binding = inflateBinding(layoutInflater)
+        setContentView(binding.root)
+        initiateView()
+        subscribeForLiveData()
     }
 
     /**
-     * This is a utility method that can be used by subclasses to replace the current fragment.
+     * Launch coroutine.
+     * Use for launch coroutine in lifecycle scope.
+     * @param action - action for launch
      */
-    fun replaceFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .commit()
+    fun launch(action: () -> Unit) {
+        lifecycleScope.launch {
+            action()
+        }
+    }
+
+    /**
+     * Observe live data.
+     * Use for observe live data in activity.
+     * @param observer - observer for live data
+     */
+    inline fun <T> LiveData<T>.observe(crossinline observer: (T) -> Unit) {
+        this.observe(this@BaseActivity) { observer(it) }
+    }
+
+    /**
+     * Use for navigate to another activity.
+     * @param T - activity class
+     * @see Activity
+     */
+    inline fun <reified T : Activity> Activity.navigateTo() {
+        val intent = Intent(this, T::class.java)
+        startActivity(intent)
     }
 
 }

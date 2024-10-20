@@ -16,7 +16,7 @@ typealias ViewCallBack = (View) -> Unit
  * @see View.OnClickListener
  * @see SystemClock
  */
-fun View.setSafeOnClickListener(
+fun View.onClick(
     defaultInterval: Int = 500,
     onSafeClick: ViewCallBack,
 ) {

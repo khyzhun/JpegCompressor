@@ -14,7 +14,6 @@ class LocalDataSourceImpl : LocalDataSource {
     override val compressedImage: Flow<ByteArray?> get() = _compressedImage.asStateFlow()
 
 
-
     override suspend fun saveSelectedImage(image: ByteArray) {
         _selectedImage.emit(image)
     }
@@ -30,4 +29,5 @@ class LocalDataSourceImpl : LocalDataSource {
     override suspend fun retrieveCompressedImage(): ByteArray? {
         return _compressedImage.value
     }
+
 }
