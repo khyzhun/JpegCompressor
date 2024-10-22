@@ -5,12 +5,9 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import com.bumptech.glide.RequestManager
 import com.khyzhun.jpegcompressor.databinding.ActivityChooseBinding
-import com.khyzhun.jpegcompressor.extensions.saveBitmapToByteArray
 import com.khyzhun.jpegcompressor.extensions.onClick
 import com.khyzhun.jpegcompressor.presentation.base.BaseActivity
 import com.khyzhun.jpegcompressor.presentation.edit.EditActivity
-import com.khyzhun.jpegcompressor.utils.COMPRESSION_QUALITY_100
-import com.khyzhun.jpegcompressor.utils.byteArrayToBitmap
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -22,10 +19,8 @@ class ChooseActivity : BaseActivity<ActivityChooseBinding>() {
     private val glide: RequestManager by inject()
 
     private val pickMedia = registerForActivityResult(PickVisualMedia()) { uri ->
-        launch {
-            saveBitmapToByteArray(uri, COMPRESSION_QUALITY_100)?.let {
-                viewModel.saveSelectedImage(it)
-            }
+        uri?.let {
+            viewModel.saveSelectedImageUri(it.toString())
         }
     }
 
@@ -39,8 +34,8 @@ class ChooseActivity : BaseActivity<ActivityChooseBinding>() {
     }
 
     override fun subscribeForLiveData() {
-        viewModel.buttonNextState.observe(this, ::setupButtonState)
-        viewModel.selectedImage.observe(this, ::setupSelectedImage)
+        viewModel.buttonNextState.observe(::setupButtonState)
+        viewModel.selectedImageUri.observe(::setupSelectedImage)
     }
 
     /**
@@ -52,12 +47,10 @@ class ChooseActivity : BaseActivity<ActivityChooseBinding>() {
     }
 
     /**
-     * Setup selected image. Load image to ImageView. If image is not selected, ImageView will be empty.
-     * @param image - selected image
-     * @see byteArrayToBitmap
+     *
      */
-    private fun setupSelectedImage(image: ByteArray?) {
-        glide.load(byteArrayToBitmap(image)).into(binding.imageViewPreview)
+    private fun setupSelectedImage(uriPath: String) {
+        glide.load(uriPath).into(binding.imageViewPreview)
     }
 
 }

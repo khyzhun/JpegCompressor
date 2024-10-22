@@ -10,21 +10,13 @@ class ChooseViewModel(
     private val repository: ChooseRepository
 ) : BaseViewModel() {
 
-    val selectedImage: LiveData<ByteArray?> =
-        repository.selectedImage.asLiveData()
+    val selectedImageUri: LiveData<String> = repository.selectedImageUri.asLiveData()
 
-    val buttonNextState: LiveData<Boolean> =
-        repository.selectedImage
-            .asLiveData()
-            .map { it != null && it.isNotEmpty() }
+    val buttonNextState: LiveData<Boolean> = selectedImageUri.map { it.isNotEmpty() }
 
-
-    fun saveSelectedImage(byteArray: ByteArray?) {
+    fun saveSelectedImageUri(uriPath: String) {
         launchIO {
-            byteArray?.let {
-                repository.saveSelectedImage(it)
-                repository.saveCompressedImage(it)
-            }
+            repository.saveSelectedImageUri(uriPath)
         }
     }
 

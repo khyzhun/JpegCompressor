@@ -8,13 +8,9 @@ class ChooseRepositoryImpl(
     private val localDataSource: LocalDataSource
 ) : ChooseRepository {
 
-    override val selectedImage: Flow<ByteArray?> get() = localDataSource.selectedImage
+    override val selectedImageUri: Flow<String> = localDataSource.selectedImageUri
 
-    override suspend fun saveSelectedImage(image: ByteArray) {
-        localDataSource.saveSelectedImage(image)
-    }
-
-    override suspend fun saveCompressedImage(image: ByteArray) {
-        localDataSource.saveCompressedImage(image)
+    override suspend fun saveSelectedImageUri(uriPath: String) {
+        localDataSource.saveSelectedImageUri(uriPath)
     }
 }

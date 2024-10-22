@@ -1,3 +1,3 @@
 package com.khyzhun.jpegcompressor.domain.entity
 
-data class CompressionResults(val difference: Int, val percentage: Int)
+data class CompressionResults(val difference: Double, val percentage: Int)

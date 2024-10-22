@@ -4,9 +4,9 @@ import android.view.LayoutInflater
 import com.bumptech.glide.RequestManager
 import com.khyzhun.jpegcompressor.R
 import com.khyzhun.jpegcompressor.databinding.ActivityPreviewBinding
-import com.khyzhun.jpegcompressor.extensions.bytes
+import com.khyzhun.jpegcompressor.extensions.toBitmap
+import com.khyzhun.jpegcompressor.extensions.kilobytes
 import com.khyzhun.jpegcompressor.presentation.base.BaseActivity
-import com.khyzhun.jpegcompressor.utils.byteArrayToBitmap
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -42,10 +42,10 @@ class ReviewActivity : BaseActivity<ActivityPreviewBinding>() {
      * Render selected image size in bytes. Show original image size in bytes.
      * If image is not selected, show 0 bytes.
      * @param size - original image size in bytes
-     * @see bytes
+     * @see kilobytes
      * @see binding
      */
-    private fun renderSelectedImageSize(size: Int) {
+    private fun renderSelectedImageSize(size: Double) {
         binding.tvImageBeforeInfo.text = getString(R.string.original_image_size_bytes, size)
     }
 
@@ -53,21 +53,21 @@ class ReviewActivity : BaseActivity<ActivityPreviewBinding>() {
      * Render selected image. Load original image to ImageView.
      * If image is not selected, ImageView will be empty.
      * @param image - original image
-     * @see byteArrayToBitmap
+     * @see toBitmap
      * @see glide
      */
     private fun renderSelectedImage(image: ByteArray?) {
-        glide.load(byteArrayToBitmap(image)).into(binding.imageViewBefore)
+        glide.load(image.toBitmap()).into(binding.imageViewBefore)
     }
 
     /**
      * Render compressed image size in bytes. Show compressed image size in bytes.
      * If image is not compressed, show 0 bytes.
      * @param size - compressed image size in bytes
-     * @see bytes
+     * @see kilobytes
      * @see binding
      */
-    private fun renderCompressedImageSize(size: Int) {
+    private fun renderCompressedImageSize(size: Double) {
         binding.tvImageAfterInfo.text = getString(R.string.compressed_image_size_bytes, size)
     }
 
@@ -75,11 +75,11 @@ class ReviewActivity : BaseActivity<ActivityPreviewBinding>() {
      * Render compressed image. Load compressed image to ImageView.
      * If image is not compressed, ImageView will be empty.
      * @param image - compressed image
-     * @see byteArrayToBitmap
+     * @see toBitmap
      * @see glide
      */
     private fun renderCompressedImage(image: ByteArray?) {
-        glide.load(byteArrayToBitmap(image)).into(binding.imageViewAfter)
+        glide.load(image.toBitmap()).into(binding.imageViewAfter)
     }
 
 }

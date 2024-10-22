@@ -1,21 +1,24 @@
 package com.khyzhun.jpegcompressor.presentation.edit
 
 import android.graphics.Bitmap
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.SeekBar
+import androidx.core.net.toUri
 import com.bumptech.glide.RequestManager
 import com.khyzhun.jpegcompressor.R
 import com.khyzhun.jpegcompressor.databinding.ActivityEditBinding
 import com.khyzhun.jpegcompressor.domain.entity.CompressionResults
+import com.khyzhun.jpegcompressor.extensions.toBitmap
+import com.khyzhun.jpegcompressor.extensions.doAfterDelay
 import com.khyzhun.jpegcompressor.extensions.onClick
 import com.khyzhun.jpegcompressor.presentation.base.BaseActivity
 import com.khyzhun.jpegcompressor.presentation.review.ReviewActivity
+import com.khyzhun.jpegcompressor.utils.BitmapCompressor
 import com.khyzhun.jpegcompressor.utils.SeekBarListener
-import com.khyzhun.jpegcompressor.utils.byteArrayToBitmap
-import com.khyzhun.jpegcompressor.utils.compressBitmapByLevel
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.concurrent.Executors
 
 class EditActivity : BaseActivity<ActivityEditBinding>(), SeekBarListener {
 
@@ -27,25 +30,48 @@ class EditActivity : BaseActivity<ActivityEditBinding>(), SeekBarListener {
 
     private var tempBitmap: Bitmap? = null
 
+    private val bitmapCompressor by lazy {
+        BitmapCompressor(this)
+    }
+
+    private val compressionDispatcher = Executors.newFixedThreadPool(Runtime
+        .getRuntime()
+        .availableProcessors()
+    ).asCoroutineDispatcher()
+
+
     override fun initiateView() {
         binding.btnNext.onClick { navigateTo<ReviewActivity>() }
         binding.seekBarCompression.setOnSeekBarChangeListener(this)
     }
 
     override fun subscribeForLiveData() {
-        viewModel.selectedImage.observe { tempBitmap = byteArrayToBitmap(it) }
-        viewModel.compressedImage.observe(::renderImage)
+        viewModel.selectedImageUri.observe(::saveUriToTempBitmap)
         viewModel.compressionResult.observe(::renderImageSize)
+        viewModel.selectedWithCompressedImages.observe(::renderImage)
     }
 
     override fun onProgressChanged(
         seekBar: SeekBar?,
         progress: Int,
         fromUser: Boolean
-    ) = launch {
-        compressBitmapByLevel(tempBitmap, progress)?.let {
-            viewModel.saveCompressedImage(it)
+    ) {
+        doAfterDelay(compressionDispatcher) {
+            bitmapCompressor.compressBitmapByLevel(tempBitmap, progress)?.let {
+                viewModel.saveCompressedImage(it)
+            }
         }
+    }
+
+    private fun saveUriToTempBitmap(uri: String) {
+        doAfterDelay(compressionDispatcher, delayMillis = 0) {
+            tempBitmap = bitmapCompressor.compressUriToBitmap(uri.toUri())
+            bitmapCompressor.compressBitmapByLevel(tempBitmap, 0)?.let {
+                viewModel.saveSelectedImage(it)
+                viewModel.saveCompressedImage(it)
+            }
+        }
+
     }
 
     /**
@@ -62,16 +88,23 @@ class EditActivity : BaseActivity<ActivityEditBinding>(), SeekBarListener {
     }
 
     /**
-     * Render image. Load compressed image to ImageView.
-     * If image is not compressed, ImageView will be empty.
-     * @param original - compressed image
-     * @see byteArrayToBitmap
+     * Render image in [binding.imageViewCompressing] with Glide.
+     * @param pair - Pair of image url and image bytes
+     * @see toBitmap
      * @see glide
+     * @see binding.imageViewCompressing
      */
-    private fun renderImage(original: ByteArray?) {
-        glide.load(byteArrayToBitmap(original))
-            .thumbnail(glide.load(tempBitmap))
+    private fun renderImage(pair: Pair<String?, ByteArray?>) {
+        glide.load(pair.second.toBitmap())
+            .thumbnail(glide.load(pair.first))
             .into(binding.imageViewCompressing)
+    }
+
+    override fun onDestroy() {
+        tempBitmap = null
+        binding.seekBarCompression.setOnSeekBarChangeListener(null)
+        compressionDispatcher.close()
+        super.onDestroy()
     }
 
 }

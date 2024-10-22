@@ -8,7 +8,11 @@ interface EditRepository {
 
     val compressedImage: Flow<ByteArray?>
 
+    val selectedImageUri: Flow<String>
+
     suspend fun retrieveSelectedImage(): ByteArray?
+
+    suspend fun saveSelectedImage(image: ByteArray)
 
     suspend fun saveCompressedImage(image: ByteArray)
 

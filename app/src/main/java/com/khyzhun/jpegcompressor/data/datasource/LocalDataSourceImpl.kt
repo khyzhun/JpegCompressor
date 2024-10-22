@@ -13,6 +13,16 @@ class LocalDataSourceImpl : LocalDataSource {
     private val _compressedImage = MutableStateFlow<ByteArray?>(null)
     override val compressedImage: Flow<ByteArray?> get() = _compressedImage.asStateFlow()
 
+    private val _selectedImageUri = MutableStateFlow("")
+    override val selectedImageUri: Flow<String> get() = _selectedImageUri.asStateFlow()
+
+    override suspend fun saveSelectedImageUri(uriPath: String) {
+        _selectedImageUri.emit(uriPath)
+    }
+
+    override suspend fun retrieveSelectedImageUri(): String {
+        return _selectedImageUri.value
+    }
 
     override suspend fun saveSelectedImage(image: ByteArray) {
         _selectedImage.emit(image)

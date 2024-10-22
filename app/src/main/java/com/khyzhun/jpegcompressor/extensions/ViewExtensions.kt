@@ -2,6 +2,12 @@ package com.khyzhun.jpegcompressor.extensions
 
 import android.os.SystemClock
 import android.view.View
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 /**
  * A typealias for a lambda that takes a [View] as a parameter and returns [Unit].
@@ -24,6 +30,18 @@ fun View.onClick(
         onSafeClick(it)
     }
     setOnClickListener(safeClickListener)
+}
+
+/**
+ * A function that performs an action after a specified delay using coroutines.
+ * @param delayMillis The delay in milliseconds before the action is performed.
+ * @param action The lambda that will be executed after the delay.
+ */
+fun doAfterDelay(context: CoroutineContext, delayMillis: Long = 300, action: () -> Unit) {
+    CoroutineScope(context).launch {
+        delay(delayMillis)
+        action()
+    }
 }
 
 /**

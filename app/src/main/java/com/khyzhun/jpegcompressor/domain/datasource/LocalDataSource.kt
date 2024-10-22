@@ -24,6 +24,14 @@ interface LocalDataSource {
      */
     val compressedImage: Flow<ByteArray?>
 
+
+
+
+    val selectedImageUri: Flow<String>
+    suspend fun saveSelectedImageUri(uriPath: String)
+    suspend fun retrieveSelectedImageUri(): String
+
+
     /**
      * Save the selected image as a byte array.
      * @param image The selected image as a byte array.
